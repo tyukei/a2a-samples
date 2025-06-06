@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 import click
 import uvicorn
 
-from agent import AirbnbAgent
-from agent_executor import AirbnbAgentExecutor
+from agent import BeachAgent  # Renamed from AirbnbAgent
+from agent_executor import BeachAgentExecutor  # Renamed from AirbnbAgentExecutor
 from dotenv import load_dotenv
 
 from a2a.server.apps import A2AStarletteApplication
@@ -103,7 +103,7 @@ async def app_lifespan(context: Dict[str, Any]):
 )
 @click.option("--log-level", "log_level", default="info", help="Uvicorn log level.")
 def cli_main(host: str, port: int, log_level: str):
-    """Command Line Interface to start the Airbnb Agent server."""
+    """Command Line Interface to start the Beach Agent server."""  # Updated docstring
     if not os.getenv("GOOGLE_API_KEY"):
         print("GOOGLE_API_KEY environment variable not set.", file=sys.stderr)
         sys.exit(1)
@@ -117,13 +117,13 @@ def cli_main(host: str, port: int, log_level: str):
                 )
                 # Depending on requirements, you could sys.exit(1) here
 
-            # Initialize AirbnbAgentExecutor with preloaded tools
-            airbnb_agent_executor = AirbnbAgentExecutor(
+            # Initialize BeachAgentExecutor with preloaded tools # Updated comment
+            beach_agent_executor = BeachAgentExecutor(  # Renamed variable
                 mcp_tools=app_context.get("mcp_tools", [])
             )
 
             request_handler = DefaultRequestHandler(
-                agent_executor=airbnb_agent_executor,
+                agent_executor=beach_agent_executor,  # Renamed variable
                 task_store=InMemoryTaskStore(),
             )
 
@@ -173,24 +173,26 @@ def cli_main(host: str, port: int, log_level: str):
 
 
 def get_agent_card(host: str, port: int):
-    """Returns the Agent Card for the Currency Agent."""
+    """Returns the Agent Card for the Beach Agent."""  # Updated docstring
     capabilities = AgentCapabilities(streaming=True, pushNotifications=True)
     skill = AgentSkill(
-        id="airbnb_search",
-        name="Search airbnb accommodation",
-        description="Helps with accommodation search using airbnb",
-        tags=["airbnb accommodation"],
+        id="beach_search",  # Updated skill id
+        name="Search for beaches",  # Updated skill name
+        description="Helps with beach search and related questions",  # Updated skill description
+        tags=["beach information", "beach search"],  # Updated skill tags
         examples=[
-            "Please find a room in LA, CA, April 15, 2025, checkout date is april 18, 2 adults"
+            "Please find a beach in California with good surfing conditions for tomorrow.",  # Updated example
+            "What are the amenities at Bondi Beach?",  # Updated example
+            "Show me family-friendly beaches near San Diego."  # Updated example
         ],
     )
     return AgentCard(
-        name="Airbnb Agent",
-        description="Helps with searching accommodation",
+        name="Beach Agent",  # Updated agent name
+        description="Helps with searching for beaches and answering related questions",  # Updated agent description
         url=f"http://{host}:{port}/",
         version="1.0.0",
-        defaultInputModes=AirbnbAgent.SUPPORTED_CONTENT_TYPES,
-        defaultOutputModes=AirbnbAgent.SUPPORTED_CONTENT_TYPES,
+        defaultInputModes=BeachAgent.SUPPORTED_CONTENT_TYPES,  # Renamed class
+        defaultOutputModes=BeachAgent.SUPPORTED_CONTENT_TYPES,  # Renamed class
         capabilities=capabilities,
         skills=[skill],
     )
